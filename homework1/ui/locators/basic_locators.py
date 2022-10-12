@@ -8,7 +8,9 @@ INPUT_EMAIL = (By.XPATH, "//input[@name='email']")
 INPUT_PASSWORD = (By.XPATH, "//input[@name='password']")
 LOG_IN_BUTTON_AUTH_FORM = (By.XPATH, "//div[starts-with(@class,'authForm-module-button')]")
 
-EDIT_INF_INPUT = (By.XPATH, "//input")
+EDIT_INF_INPUT_1 = (By.XPATH, "(//input)[1]")
+EDIT_INF_INPUT_2 = (By.XPATH, "(//input)[2]")
+EDIT_INF_INPUT_3 = (By.XPATH, "(//input)[3]")
 EDIT_INF_BUTTON = (By.XPATH, "//button")
 EDIT_INF_SUCCESS = (By.XPATH, "//div[contains(@class, 'js-group-form-success-bg')]")
 

@@ -1,5 +1,7 @@
 import pytest
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def pytest_addoption(parser):
@@ -19,7 +21,8 @@ def browser(config):
     if config:
         options.add_argument('--headless')
         options.add_argument('--window-size=1920x1080')
-    browser = webdriver.Chrome(options=options)
+    browser = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager(version="105.0.5195.19").install()), options=options)
     browser.implicitly_wait(10)
     browser.maximize_window()
     yield browser
