@@ -32,9 +32,11 @@ def driver(config, temp_dir):
     selenoid = config['selenoid']
     vnc = config['vnc']
     video = config['video']
+    language = config['language']
     options = Options()
     options.add_experimental_option("prefs", {"download.default_directory": temp_dir})
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option('prefs', {'intl.accept_languages': language})
     if selenoid:
         capabilities = {
             'browserName': 'chrome',

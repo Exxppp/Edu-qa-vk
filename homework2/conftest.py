@@ -10,6 +10,8 @@ def pytest_addoption(parser):
     parser.addoption('--selenoid', action='store_true')
     parser.addoption('--vnc', action='store_true')
     parser.addoption('--video', action='store_true')
+    parser.addoption('--language', action='store', default='ru',
+                     help="Choose language: ru, es or other")
 
 
 @pytest.fixture(scope='session')
@@ -46,6 +48,7 @@ def config(request):
     debug_log = request.config.getoption('--debug_log')
     headless = request.config.getoption('--headless')
     video = request.config.getoption('--video')
+    language = request.config.getoption('--language')
     if request.config.getoption('--selenoid'):
         if request.config.getoption('--vnc'):
             vnc = True
@@ -61,7 +64,8 @@ def config(request):
         'headless': headless,
         'selenoid': selenoid,
         'vnc': vnc,
-        'video': video
+        'video': video,
+        'language': language
     }
 
 
