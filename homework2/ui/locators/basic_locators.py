@@ -1,11 +1,6 @@
 from selenium.webdriver.common.by import By
 
 
-class BasePageLocators:
-
-    pass
-
-
 class LoginPageLocators:
     LOG_IN_BUTTON = (By.XPATH, "//div[starts-with(@class,'responseHead-module-button')]")
     INPUT_EMAIL = (By.XPATH, "//input[@name='email']")
@@ -14,7 +9,7 @@ class LoginPageLocators:
 
 
 class DashboardPageLocators:
-    CREATE_NEW_COMPANY = (By.XPATH, "//div[contains(@class,'dashboard-module-createButtonWrap')]/div/div")
+    CREATE_NEW_COMPANY = (By.XPATH, "//div[contains(@class,'createButtonWrap')]/div/div")
     VK_PRODUCTS = (By.XPATH, "//div[contains(@class,'_general_ttm')]")
     LINK = (By.XPATH, "//div[contains(@class, 'suggester')]//input")
     FIRST_AD_PRODUCT = (By.XPATH, "//div[contains(@class,'column-list-item pac')][1]")
@@ -26,6 +21,7 @@ class DashboardPageLocators:
     NAME_COMPANY = (By.XPATH, "//div[@class='campaign-name']//input")
     GET_NAME_COMPANY = (By.XPATH, "//a[contains(@class,'nameCell-module-campaignNameLink')]")
     ACTIONS = (By.XPATH, "//div[contains(@class,'tableControls-module-massActionsSelect')]")
+    SELECT_COMPANY = (By.XPATH, "//div[contains(@class,'nameCell')]/input")
     SELECT_ALL_COMPANY = (By.XPATH, "//div[contains(@class,'header-module-noWrap')]/input")
     DELETE = (By.XPATH, "//li[@data-test='8']")
 
@@ -42,11 +38,10 @@ class SegmentsPageLocators:
     SELECT_SEGMENT = (By.XPATH, "//div[contains(@class,'segmentsTable-module-idCellWrap')]/input")
     ACTIONS = (By.XPATH, "//div[contains(@class,'segmentsTable-module-massActionsSelect')]")
     REMOVE_SEGMENTS = (By.XPATH, "//li[contains(@data-test,'remove')]")
-
     GROUPS_VK_AND_OK = (By.XPATH, "//a[@href='/segments/groups_list']")
-    INPUT_LINK_GROUPS_VK_AND_OK = (By.XPATH, "//input[contains(@class,'multiSelectSuggester-module-searchInput')]")
+    INPUT_LINK_GROUPS_VK_AND_OK = (By.XPATH, "//input[contains(@class,'multiSelectSuggester')]")
     SELECT_ALL = (By.XPATH, "//div[@data-test='select_all']")
     ADD_SELECTED = (By.XPATH, "//div[@data-test='add_selected_items_button']")
     DATA_SOURCE_VK = (By.XPATH, "//tr[@class='flexi-table__row']")
-    REMOVE_DATA_SOURCE_VK = (By.XPATH, "//a[@href='https://vk.com/vkedu']/../../td/div/div")
+    REMOVE_DATA_SOURCE_VK = (By.XPATH, "//td[contains(@class,'cell-remove')]")
     CONFIRM_REMOVE = (By.XPATH, "//button[contains(@class, 'button_confirm-remove')]")

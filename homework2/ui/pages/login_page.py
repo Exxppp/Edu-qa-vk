@@ -1,6 +1,6 @@
-from ..locators.locators import LoginPageLocators
-from .base_page import BasePage
-from .main_page import MainPage
+from ui.locators.basic_locators import LoginPageLocators
+from ui.pages.base_page import BasePage
+from ui.pages.dashboard_page import DashboardPage
 
 
 class LoginPage(BasePage):
@@ -11,4 +11,4 @@ class LoginPage(BasePage):
         self.input_text(LoginPageLocators.INPUT_EMAIL, email)
         self.input_text(LoginPageLocators.INPUT_PASSWORD, password)
         self.click(LoginPageLocators.LOG_IN_BUTTON_AUTH_FORM)
-        return MainPage(self.driver)
+        return DashboardPage(self.driver)

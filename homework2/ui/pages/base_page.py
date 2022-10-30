@@ -1,12 +1,10 @@
-from selenium.webdriver.remote.webelement import WebElement
-from ..locators import locators
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 
 class BasePage:
 
-    locators = locators.BasePageLocators
     url = 'https://target-sandbox.my.com/'
 
     def __init__(self, driver):
@@ -39,3 +37,12 @@ class BasePage:
         self.find(locator, timeout=timeout)
         elem = self.wait(timeout).until(EC.element_to_be_clickable(locator))
         elem.click()
+
+    def is_not_element_present(self, locator, timeout=None):
+        if timeout is None:
+            timeout = 10
+        try:
+            WebDriverWait(self.driver, timeout=timeout).until(EC.presence_of_element_located(locator))
+        except TimeoutException:
+            return True
+        return False

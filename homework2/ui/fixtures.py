@@ -7,11 +7,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
-from .pages.base_page import BasePage
-from .pages.main_page import MainPage
-from .pages.login_page import LoginPage
-from .pages.dashboard_page import DashboardPage
-from .pages.segments_page import SegmentsPage
+from ui.pages.base_page import BasePage
+from ui.pages.login_page import LoginPage
+from ui.pages.dashboard_page import DashboardPage
+from ui.pages.segments_page import SegmentsPage
 
 
 def pytest_configure(config):
@@ -35,7 +34,6 @@ def driver(config, temp_dir):
     language = config['language']
     options = Options()
     options.add_experimental_option("prefs", {"download.default_directory": temp_dir})
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option('prefs', {'intl.accept_languages': language})
     if selenoid:
         capabilities = {
@@ -61,11 +59,6 @@ def driver(config, temp_dir):
 @pytest.fixture
 def base_page(driver):
     return BasePage(driver=driver)
-
-
-@pytest.fixture
-def main_page(driver):
-    return MainPage(driver=driver)
 
 
 @pytest.fixture

@@ -1,11 +1,8 @@
 import os
-from contextlib import contextmanager
-
 import allure
 import pytest
 from _pytest.fixtures import FixtureRequest
 from ui.pages.base_page import BasePage
-from ui.pages.main_page import MainPage
 from ui.pages.login_page import LoginPage
 from ui.pages.dashboard_page import DashboardPage
 from ui.pages.segments_page import SegmentsPage
@@ -14,17 +11,6 @@ from ui.pages.segments_page import SegmentsPage
 class BaseCase:
     driver = None
     authorize = True
-
-    @contextmanager
-    def switch_to_window(self, current, close=False):
-        for w in self.driver.window_handles:
-            if w != current:
-                self.driver.switch_to.window(w)
-                break
-        yield
-        if close:
-            self.driver.close()
-        self.driver.switch_to.window(current)
 
     @pytest.fixture(scope='function', autouse=True)
     def ui_report(self, driver, request, temp_dir):
@@ -48,10 +34,9 @@ class BaseCase:
         self.logger = logger
 
         self.base_page: BasePage = (request.getfixturevalue('base_page'))
-        self.main_page: MainPage = (request.getfixturevalue('main_page'))
         self.dashboard_page: DashboardPage = (request.getfixturevalue('dashboard_page'))
         self.segments_page: SegmentsPage = (request.getfixturevalue('segments_page'))
-        self.login_page: LoginPage = (request.getfixturevalue('main_page'))
+        self.login_page: LoginPage = (request.getfixturevalue('login_page'))
         if self.authorize:
             login_page = LoginPage(self.driver)
             login_page.login()
