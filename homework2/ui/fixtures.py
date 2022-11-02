@@ -52,6 +52,7 @@ def driver(config, temp_dir):
             options.add_argument('--window-size=1920x1080')
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     driver.maximize_window()
+    driver.implicitly_wait(15)
     yield driver
     driver.quit()
 
