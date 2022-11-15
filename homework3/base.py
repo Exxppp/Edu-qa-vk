@@ -1,8 +1,9 @@
 import pytest
+
 from builder import Builder
 
 
-class ApiBase:
+class BaseCaseApi:
     authorize = True
 
     @pytest.fixture(scope='function', autouse=True)

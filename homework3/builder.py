@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 import faker
 
 faker = faker.Faker()
@@ -6,7 +7,7 @@ faker = faker.Faker()
 
 class Builder:
     @staticmethod
-    def ad(name=None, text=None, title=None, price=None):
+    def company(name=None, text=None, title=None, price=None):
         @dataclass
         class Company:
             name: str
