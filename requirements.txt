@@ -4,3 +4,4 @@ webdriver-manager==3.8.3
 allure-pytest==2.11.1
 pytest-xdist==2.5.0
 Appium-Python-Client==2.7.1
+Faker==15.1.1
