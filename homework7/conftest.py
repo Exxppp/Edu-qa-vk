@@ -16,7 +16,6 @@ repo_root = os.path.abspath(os.path.join(__file__, os.pardir))
 repo_root_2 = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir))
 python_path = os.path.join(repo_root_2, 'venv', 'Scripts', 'python')
 
-
 def wait_ready(host, port):
     started = False
     st = time.time()
@@ -33,6 +32,15 @@ def wait_ready(host, port):
 
 
 def pytest_configure(config):
+    base_test_dir = os.path.join(repo_root, 'tests_logs')
+
+    if not hasattr(config, 'workerinput'):
+        if os.path.exists(base_test_dir):
+            shutil.rmtree(base_test_dir)
+        os.makedirs(base_test_dir)
+
+    config.base_test_dir = base_test_dir
+
     if not hasattr(config, 'workerinput'):
         ######### app configuration #########
 
@@ -69,17 +77,9 @@ def pytest_configure(config):
         wait_ready(settings.MOCK_HOST, settings.MOCK_PORT)
 
 
-@pytest.fixture(scope='session')
-def base_temp_dir():
-    base_dir = os.path.join(repo_root, 'tests_logs')
-    if os.path.exists(base_dir):
-        shutil.rmtree(base_dir)
-    return base_dir
-
-
 @pytest.fixture(scope='function')
-def temp_dir(request, base_temp_dir):
-    test_dir = os.path.join(base_temp_dir, request._pyfuncitem.nodeid)
+def temp_dir(request):
+    test_dir = os.path.join(request.config.base_test_dir, request._pyfuncitem.nodeid)
     test_dir = os.path.abspath(test_dir).replace('::', '_')
     os.makedirs(test_dir)
     return test_dir
