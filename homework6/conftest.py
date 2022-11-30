@@ -1,6 +1,7 @@
 import pytest
 
 from mysql.client import MysqlClient
+from static.tables import EXISTING_TABLES
 
 
 def pytest_configure(config):
@@ -9,11 +10,8 @@ def pytest_configure(config):
         mysql_client.create_db()
     mysql_client.connect(db_created=True)
     if not hasattr(config, 'workerinput'):
-        mysql_client.create_table('total_number')
-        mysql_client.create_table('request_type')
-        mysql_client.create_table('top_ten_request')
-        mysql_client.create_table('top_five_by_size')
-        mysql_client.create_table('top_five_users')
+        for name_table in EXISTING_TABLES['names']:
+            mysql_client.create_table(name_table)
 
     config.mysql_client = mysql_client
 

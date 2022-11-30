@@ -27,24 +27,24 @@ class RequestType(Base):
     count = Column(Integer, nullable=False)
 
 
-class TopTenRequest(Base):
-    __tablename__ = 'top_ten_request'
+class TopRequest(Base):
+    __tablename__ = 'top_request'
     __table_arg__ = {'mysql_charset': 'utf8'}
 
     def __repr__(self):
-        return f'top_ten_request id={self.id}, url={self.url}, count={self.count}'
+        return f'top_request id={self.id}, url={self.url}, count={self.count}'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     url = Column(VARCHAR(80), nullable=False)
     count = Column(Integer, nullable=False)
 
 
-class TopFiveBySize(Base):
-    __tablename__ = 'top_five_by_size'
+class LargestRequests(Base):
+    __tablename__ = 'largest_requests'
     __table_arg__ = {'mysql_charset': 'utf8'}
 
     def __repr__(self):
-        return (f'top_five_by_size id={self.id}, url={self.url}, status_code={self.status_code}, '
+        return (f'largest_requests id={self.id}, url={self.url}, status_code={self.status_code}, '
                 f'byte_size={self.byte_size}, ip={self.ip}')
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -54,12 +54,12 @@ class TopFiveBySize(Base):
     ip = Column(VARCHAR(20), nullable=False)
 
 
-class TopFiveUsers(Base):
-    __tablename__ = 'top_five_users'
+class TopUsers(Base):
+    __tablename__ = 'top_users'
     __table_arg__ = {'mysql_charset': 'utf8'}
 
     def __repr__(self):
-        return f'top_five_users id={self.id}, ip={self.ip}, count={self.count}'
+        return f'top_users id={self.id}, ip={self.ip}, count={self.count}'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     ip = Column(VARCHAR(80), nullable=False)
