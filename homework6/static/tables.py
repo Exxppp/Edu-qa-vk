@@ -1,4 +1,4 @@
-from models.model import TotalNumber, RequestType, TopRequest, LargestRequests, TopUsers
+from mysql.models.model import TotalNumber, RequestType, TopRequest, LargestRequests, TopUsers
 
 EXISTING_TABLES = {
     'tables': [TotalNumber, RequestType, TopRequest, LargestRequests, TopUsers],

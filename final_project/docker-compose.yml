@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mysql_db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/init_files:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", 'mysqladmin ping']
+      timeout: 1s
+      retries: 12
+
+  mock:
+    build: ./application
+    ports:
+      - "8090:8090"
+
+  myapp:
+    image: myapp
+    volumes:
+      - ./static/myapp:/tmp
+    entrypoint: /app/myapp --config=/tmp/config.py
+    ports:
+      - "9090:9090"
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+      mock:
+        condition: service_started
+
+  selenoid:
+    image: aerokube/selenoid:latest-release
+    volumes:
+      - ./selenoid:/etc/selenoid
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "4444:4444"
+
+  selenoid-ui:
+    image: aerokube/selenoid-ui:latest
+    links:
+      - selenoid
+    ports:
+      - "8080:8080"
+    command: [ "--selenoid-uri", "http://selenoid:4444" ]

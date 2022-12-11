@@ -1,0 +1,6 @@
+APP_HOST = '0.0.0.0'
+APP_PORT = '9090'
+MYSQL_HOST = 'mysql_db'
+MYSQL_PORT = '3306'
+MYSQL_DB = 'DB_MYAPP'
+VK_URL = 'mock:8090'

@@ -7,8 +7,9 @@ fake = faker.Faker()
 
 
 class Builder:
+
     @staticmethod
-    def user(name=None, surname=None, middle_name=None, username=None, password=None, email=None):
+    def user(name=None, surname=None, middle_name=None, username=None, username_length=None, password=None, email=None):
         @dataclass
         class User:
             name: str
@@ -31,8 +32,11 @@ class Builder:
         elif middle_name is None:
             middle_name = fake.unique.lexify('???????')
 
+        if username_length is None:
+            username_length = fake.unique.pyint(min_value=6, max_values=16)
+
         if username is None:
-            username = fake.unique.pystr(min_chars=6, max_chars=15)
+            username = fake.unique.pystr(min_chars=username_length, max_chars=username_length)
 
         if password is None:
             password = fake.unique.lexify('???????')
