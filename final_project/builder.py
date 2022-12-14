@@ -1,15 +1,13 @@
 from copy import copy
 from dataclasses import dataclass
-
-import faker
-
-fake = faker.Faker()
+from utils.func import *
 
 
 class Builder:
 
     @staticmethod
-    def user(name=None, surname=None, middle_name=None, username=None, username_length=None, password=None, email=None):
+    def user(name=None, name_length=None, surname=None, surname_length=None, middle_name=None, middle_name_length=None,
+             username=None, username_length=None, password=None, password_length=None, email=None):
         @dataclass
         class User:
             name: str
@@ -22,27 +20,22 @@ class Builder:
             data_reg: dict
 
         if name is None:
-            name = fake.unique.first_name()
+            name = generate_str(name_length)
 
         if surname is None:
-            surname = fake.unique.last_name()
+            surname = generate_str(surname_length)
 
-        if middle_name is False:
-            middle_name = ''
-        elif middle_name is None:
-            middle_name = fake.unique.lexify('???????')
-
-        if username_length is None:
-            username_length = fake.unique.pyint(min_value=6, max_values=16)
+        if middle_name is None:
+            middle_name = generate_str(middle_name_length)
 
         if username is None:
-            username = fake.unique.pystr(min_chars=username_length, max_chars=username_length)
+            username = generate_unique_str(username_length)
 
         if password is None:
-            password = fake.unique.lexify('???????')
+            password = generate_str(password_length)
 
         if email is None:
-            email = fake.unique.email()
+            email = generate_email()
 
         data = {
             "name": name,

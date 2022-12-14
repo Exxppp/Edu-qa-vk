@@ -1,7 +1,7 @@
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
-
-from mysql.models.model import Base
+import allure
+from mysql.models.model import TestUsers
 
 
 class MysqlClient:
@@ -26,19 +26,26 @@ class MysqlClient:
         session = sessionmaker(bind=self.connection.engine)
         self.session = session()
 
-    def create_db(self):
-        self.connect(db_created=False)
-        self.execute_query(f'DROP database IF EXISTS {self.db_name}')
-        self.execute_query(f'CREATE database {self.db_name}')
+    def clear_table(self):
+        self.connect(db_created=True)
+        self.session.query(TestUsers).delete()
+        self.session.commit()
 
-    def create_table(self, table_name):
-        if not sqlalchemy.inspect(self.engine).has_table(table_name):
-            Base.metadata.tables[table_name].create(self.engine)
+    @allure.step('Добавление пользователя в базу')
+    def add_user(self, user_data):
+        user_data = TestUsers(**user_data, access=1)
+        self.session.add(user_data)
+        self.session.commit()
 
-    def execute_query(self, query, fetch=False, values=None):
-        if values:
-            res = self.connection.execute(query, values)
-        else:
-            res = self.connection.execute(query)
-        if fetch:
-            return res.fetchall()
+    @allure.step('Изменение доступа пользователя')
+    def set_user_access(self, username, access_status):
+        self.session.commit()
+        self.session.query(TestUsers).filter(TestUsers.username == username).update({"access": access_status})
+        self.session.commit()
+
+    def get_all_fields_by_username(self, username):
+        self.session.commit()
+        data = self.session.query(TestUsers).filter(TestUsers.username == username).first()
+
+        return data
+

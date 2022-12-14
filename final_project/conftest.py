@@ -1,51 +1,28 @@
 import os
 import shutil
-import sys
-
 from ui.fixtures import *
+from mysql.client import MysqlClient
+from api.client import ApiClient
 
 
 def pytest_configure(config):
+    mysql_client = MysqlClient(user='root', password='pass', db_name='DB_MYAPP')
+
     if not hasattr(config, 'workerinput'):
+        # logs
+        config.repo_root = os.path.abspath(os.path.join(__file__, os.path.pardir))
 
+        base_test_dir = os.path.join(config.repo_root, 'tests_logs')
+        if os.path.exists(base_test_dir):
+            shutil.rmtree(base_test_dir)
+        os.makedirs(base_test_dir)
 
-def pytest_addoption(parser):
-    parser.addoption('--headless', action='store_true')
-    parser.addoption('--debug_log', action='store_true')
-    parser.addoption('--selenoid', action='store_true')
-    parser.addoption('--vnc', action='store_true')
-    parser.addoption('--video', action='store_true')
-    parser.addoption('--language', action='store', default='ru',
-                     help="Choose language: ru, es or other")
+        config.base_test_dir = base_test_dir
 
+        # clear table
+        mysql_client.clear_table()
 
-@pytest.fixture(scope='session')
-def repo_root():
-    return os.path.abspath(os.path.join(__file__, os.path.pardir))
-
-
-@pytest.fixture()
-def file_path(repo_root):
-    return os.path.join(repo_root, 'files', '1.png')
-
-
-@pytest.fixture(scope='session')
-def base_temp_dir():
-    if sys.platform.startswith('win'):
-        base_dir = 'C:\\tests'
-    else:
-        base_dir = '/tmp/tests'
-    if os.path.exists(base_dir):
-        shutil.rmtree(base_dir)
-    return base_dir
-
-
-@pytest.fixture(scope='function')
-def temp_dir(request):
-    test_dir = os.path.join(request.config.base_temp_dir, request._pyfuncitem.nodeid)
-    test_dir = os.path.abspath(test_dir).replace('::', '_')
-    os.makedirs(test_dir)
-    return test_dir
+    config.mysql_client = mysql_client
 
 
 @pytest.fixture(scope='session')
@@ -60,9 +37,11 @@ def config(request):
         else:
             vnc = False
         selenoid = 'http://127.0.0.1:4444/wd/hub'
+        url = 'http://myapp:9090/'
     else:
         selenoid = None
         vnc = False
+        url = 'http://localhost:9090/'
 
     return {
         'debug_log': debug_log,
@@ -70,5 +49,26 @@ def config(request):
         'selenoid': selenoid,
         'vnc': vnc,
         'video': video,
-        'language': language
+        'language': language,
+        'url': url
     }
+
+
+@pytest.fixture(scope='function')
+def temp_dir(request):
+    test_dir = os.path.join(request.config.base_test_dir, request._pyfuncitem.nodeid)
+    test_dir = os.path.abspath(test_dir).replace('::', '_')
+    os.makedirs(test_dir)
+    return test_dir
+
+
+@pytest.fixture(scope='session')
+def mysql_client(request) -> MysqlClient:
+    client = request.config.mysql_client
+    yield client
+    client.connection.close()
+
+
+@pytest.fixture(scope='session')
+def api_client(config):
+    return ApiClient(base_url=config['url'])

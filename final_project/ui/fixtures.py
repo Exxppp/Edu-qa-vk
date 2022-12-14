@@ -10,14 +10,26 @@ from ui.pages.main_page import MainPage
 from ui.pages.register_page import RegisterPage
 
 
+def pytest_addoption(parser):
+    parser.addoption('--headless', action='store_true')
+    parser.addoption('--debug_log', action='store_true')
+    parser.addoption('--selenoid', action='store_true')
+    parser.addoption('--vnc', action='store_true')
+    parser.addoption('--video', action='store_true')
+    parser.addoption('--language', action='store', default='ru',
+                     help="Choose language: ru, es or other")
+
+
 @pytest.fixture()
-def driver(config, temp_dir):
+def driver(config, temp_dir, logs=True):
     selenoid = config['selenoid']
     vnc = config['vnc']
     video = config['video']
     language = config['language']
     options = Options()
-    options.add_experimental_option("prefs", {"download.default_directory": temp_dir})
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    if logs:
+        options.add_experimental_option("prefs", {"download.default_directory": temp_dir})
     options.add_experimental_option('prefs', {'intl.accept_languages': language})
     if selenoid:
         capabilities = {
@@ -26,7 +38,7 @@ def driver(config, temp_dir):
             'selenoid:options': {'enableVNC': vnc,
                                  'enableVideo': video}}
         driver = webdriver.Remote(
-            'http://127.0.0.1:4444/wd/hub',
+            command_executor=selenoid,
             options=options,
             desired_capabilities=capabilities
         )
@@ -42,20 +54,20 @@ def driver(config, temp_dir):
 
 
 @pytest.fixture
-def base_page(driver):
-    return BasePage(driver=driver)
+def base_page(driver, config):
+    return BasePage(driver=driver, url=config['url'])
 
 
 @pytest.fixture
-def login_page(driver):
-    return LoginPage(driver=driver)
+def login_page(driver, config):
+    return LoginPage(driver=driver, url=config['url'] + 'login')
 
 
 @pytest.fixture
-def register_page(driver):
-    return RegisterPage(driver=driver)
+def register_page(driver, config):
+    return RegisterPage(driver=driver, url=config['url'] + 'reg')
 
 
 @pytest.fixture
-def main_page(driver):
-    return MainPage(driver=driver)
+def main_page(driver, config):
+    return MainPage(driver=driver, url=config['url'] + 'welcome/')

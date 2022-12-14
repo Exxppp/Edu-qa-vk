@@ -1,14 +1,17 @@
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import time
+from contextlib import contextmanager
+
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
 
 
 class BasePage:
 
-    url = 'http://localhost:9090/'
-
-    def __init__(self, driver):
+    def __init__(self, driver, url):
         self.driver = driver
+        self.url = url
 
     def open(self):
         if self.driver.current_url == self.url:
@@ -26,8 +29,16 @@ class BasePage:
     def find_all(self, locator, timeout=None):
         return self.wait(timeout).until(method=EC.presence_of_all_elements_located(locator))
 
-    def get_text(self, locator):
-        return self.find(locator).text
+    def get_text(self, locator, time_wait=10):
+        text = ''
+        for i in range(time_wait):
+            el = self.find(locator)
+            text = el.text
+            if text:
+                return text
+            else:
+                time.sleep(0.5)
+        return text
 
     def input_text(self, locator, query):
         elem = self.find(locator)
@@ -43,8 +54,11 @@ class BasePage:
         elem = self.wait(timeout).until(EC.element_to_be_clickable(locator))
         elem.click()
 
-    def scroll_down(self):
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    def move_and_click_to_next_element(self, locator_for_find, locator_for_click):
+        actions = ActionChains(self.driver)
+        actions.move_to_element(self.find(locator_for_find))
+        actions.click(self.find(locator_for_click))
+        actions.perform()
 
     def is_not_element_present(self, locator, timeout=None):
         if timeout is None:

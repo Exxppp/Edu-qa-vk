@@ -15,7 +15,7 @@ class ApiBase:
         self.session = requests.Session()
 
     def _request(self, method, location, headers=None, data=None, params=None, allow_redirects=False,
-                 jsonify=False, base_url=None, json=None, expected_status=200):
+                 jsonify=False, base_url=None, json=None):
         if base_url is None:
             url = urljoin(self.base_url, location)
         else:
@@ -24,8 +24,6 @@ class ApiBase:
         response = self.session.request(method=method, url=url, headers=headers, data=data, params=params,
                                         allow_redirects=allow_redirects, json=json)
 
-        # if response.status_code != expected_status:
-        #     raise ResponseStatusCodeException(f'Expected {expected_status}, but got {response.status_code}')
         if jsonify:
             json_response: dict = response.json()
 
