@@ -10,7 +10,7 @@ class ResponseStatusCodeException(Exception):
 class ApiBase:
     def __init__(self, base_url=None):
         if base_url is None:
-            base_url = 'http://localhost:8080'
+            base_url = 'http://localhost:9090'
         self.base_url = base_url
         self.session = requests.Session()
 

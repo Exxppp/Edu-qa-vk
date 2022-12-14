@@ -44,7 +44,7 @@ class TestReg(BaseCase):
                 assert bd_user.middlename == ud.middle_name
 
     @allure.story('Проверка регистрации и дополнительного заполнения бд')
-    def test_reg_correct_user(self):
+    def test_reg_correct_user_add_db(self):
         ud = self.builder.user()
         self.register_user(ud.name, ud.surname, ud.middle_name, ud.username, ud.email, ud.password)
         with allure.step('Проверка внесения дополнительных данных в базу'):
