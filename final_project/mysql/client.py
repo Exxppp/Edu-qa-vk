@@ -1,6 +1,7 @@
+import allure
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
-import allure
+
 from mysql.models.model import TestUsers
 
 
@@ -27,7 +28,6 @@ class MysqlClient:
         self.session = session()
 
     def clear_table(self):
-        self.connect(db_created=True)
         self.session.query(TestUsers).delete()
         self.session.commit()
 

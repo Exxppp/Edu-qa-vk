@@ -1,8 +1,8 @@
 import pytest
 
+from api.client import ApiClient
 from builder import Builder
 from mysql.client import MysqlClient
-from api.client import ApiClient
 
 
 class BaseCaseApi:
@@ -10,13 +10,12 @@ class BaseCaseApi:
     authorize = True
 
     @pytest.fixture(scope='function', autouse=True)
-    def setup(self, api_client, mysql_client):
+    def setup(self, api_client, mysql_client, request):
         self.api_client: ApiClient = api_client
         self.builder = Builder()
         self.mysql: MysqlClient = mysql_client
 
         if self.authorize:
-            user_data = Builder.user()
-            mysql_client.add_user(user_data.data)
-            api_client.post_login(user_data.username, user_data.password)
-            self.auth_user_data = user_data
+            cookies = request.getfixturevalue('cookies_api')
+            self.api_client.session.cookies.update(cookies)
+            self.auth_user_data = request.config.user_data

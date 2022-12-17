@@ -20,8 +20,7 @@ def pytest_addoption(parser):
                      help="Choose language: ru, es or other")
 
 
-@pytest.fixture()
-def driver(config, temp_dir, logs=True):
+def get_driver(config, temp_dir, logs=True):
     selenoid = config['selenoid']
     vnc = config['vnc']
     video = config['video']
@@ -36,6 +35,7 @@ def driver(config, temp_dir, logs=True):
             'browserName': 'chrome',
             'version': '106.0',
             'selenoid:options': {'enableVNC': vnc,
+                                 'screenResolution': '1920x1080x24',
                                  'enableVideo': video}}
         driver = webdriver.Remote(
             command_executor=selenoid,
@@ -49,6 +49,12 @@ def driver(config, temp_dir, logs=True):
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
     driver.maximize_window()
     driver.implicitly_wait(15)
+    return driver
+
+
+@pytest.fixture()
+def driver(config, temp_dir):
+    driver = get_driver(config=config, temp_dir=temp_dir)
     yield driver
     driver.quit()
 

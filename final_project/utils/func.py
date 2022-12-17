@@ -1,4 +1,7 @@
+import time
+
 import faker
+import requests
 
 fake = faker.Faker()
 
@@ -22,3 +25,17 @@ def generate_unique_str(length=None):
 def generate_email():
     return fake.unique.email()
 
+
+def wait_ready(host, port, wait_time=820):
+    started = False
+    st = time.time()
+    while time.time() - st <= wait_time:
+        try:
+            requests.get(f'http://{host}:{port}')
+            started = True
+            break
+        except:
+            pass
+
+    if not started:
+        raise RuntimeError(f'App did not started in {wait_time}s!')

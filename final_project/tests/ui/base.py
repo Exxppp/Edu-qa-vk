@@ -3,14 +3,14 @@ from contextlib import contextmanager
 
 import allure
 import pytest
-from _pytest.fixtures import FixtureRequest
+from selenium.webdriver.chrome.webdriver import WebDriver
+
 from builder import Builder
+from mysql.client import MysqlClient
 from ui.pages.base_page import BasePage
 from ui.pages.login_page import LoginPage
-from ui.pages.register_page import RegisterPage
 from ui.pages.main_page import MainPage
-from selenium.webdriver.chrome.webdriver import WebDriver
-from mysql.client import MysqlClient
+from ui.pages.register_page import RegisterPage
 
 
 class BaseCase:
@@ -45,7 +45,7 @@ class BaseCase:
             allure.attach.file(screenshot_path, 'failed.png', allure.attachment_type.PNG)
 
     @pytest.fixture(scope='function', autouse=True)
-    def setup(self, driver, mysql_client, request: FixtureRequest):
+    def setup(self, driver, mysql_client, request):
         self.driver: WebDriver = driver
         self.builder = Builder()
         self.mysql: MysqlClient = mysql_client
@@ -56,7 +56,8 @@ class BaseCase:
         self.main_page: MainPage = (request.getfixturevalue('main_page'))
 
         if self.authorize:
-            user_data = self.builder.user()
-            self.mysql.add_user(user_data.data)
-            self.login_page.login(user_data.username, user_data.password)
-            self.auth_user_data = user_data
+            name, value = request.getfixturevalue('cookies_ui')
+            self.base_page.open()
+            driver.add_cookie({'name': name, 'value': value})
+            self.driver.refresh()
+            self.auth_user_data = request.config.user_data

@@ -1,13 +1,13 @@
 import os
 import shutil
 import subprocess
-import time
+from copy import copy
 
-import requests
-
-from ui.fixtures import *
-from mysql.client import MysqlClient
 from api.client import ApiClient
+from builder import Builder
+from mysql.client import MysqlClient
+from ui.fixtures import *
+from utils.func import wait_ready
 
 
 def pytest_configure(config):
@@ -18,10 +18,17 @@ def pytest_configure(config):
 
     if not hasattr(config, 'workerinput'):
 
-        app_stderr = open('tmp/up_stderr', 'w')
-        app_stdout = open('tmp/up_stdout', 'w')
+        app_stderr_path = os.path.join(config.repo_root, 'tmp', 'app_stderr')
+        app_stdout_path = os.path.join(config.repo_root, 'tmp', 'app_stdout')
+        os.makedirs(os.path.dirname(app_stderr_path), exist_ok=True)
+        app_stderr = open(app_stderr_path, 'w')
+        app_stdout = open(app_stdout_path, 'w')
+        config.app_stderr = app_stderr
+        config.app_stdout = app_stdout
 
-        up_docker = subprocess.Popen("docker compose up -d", stderr=app_stderr, stdout=app_stdout)
+        env = copy(os.environ)
+        subprocess.run("docker network create selenoid")
+        subprocess.Popen("docker compose up", stderr=app_stderr, stdout=app_stdout, env=env)
         wait_ready(host='localhost', port='9090')
 
         # logs
@@ -29,28 +36,14 @@ def pytest_configure(config):
             shutil.rmtree(base_test_dir)
         os.makedirs(base_test_dir)
 
-        # clear table
-        mysql_client.clear_table()
-
-    config.base_test_dir = base_test_dir
-
+    # add user
+    user_data = Builder.user()
     mysql_client.connect()
+    mysql_client.add_user(user_data.data)
+
+    config.user_data = user_data
+    config.base_test_dir = base_test_dir
     config.mysql_client = mysql_client
-
-
-def wait_ready(host, port):
-    started = False
-    st = time.time()
-    while time.time() - st <= 120:
-        try:
-            requests.get(f'http://{host}:{port}')
-            started = True
-            break
-        except ConnectionError:
-            pass
-
-    if not started:
-        raise RuntimeError('App did not started in 5s!')
 
 
 @pytest.fixture(scope='session')
@@ -98,5 +91,39 @@ def mysql_client(request) -> MysqlClient:
 
 
 @pytest.fixture(scope='session')
-def api_client(config):
+def api_client():
     return ApiClient()
+
+
+@pytest.fixture(scope='session')
+def cookies_ui(config, api_client: ApiClient, request):
+    api_client.post_login(username=request.config.user_data.username, password=request.config.user_data.password)
+    cookies = api_client.session.cookies
+    name, value = tuple(cookies.get_dict().items())[0]
+    return name, value
+
+
+@pytest.fixture(scope='session')
+def cookies_api(config, api_client: ApiClient, request):
+    api_client.post_login(username=request.config.user_data.username, password=request.config.user_data.password)
+    cookies = api_client.session.cookies
+    return cookies
+
+
+def pytest_unconfigure(config):
+    if not hasattr(config, 'workerinput'):
+        env = copy(os.environ)
+        app_stderr_path = os.path.join(config.repo_root, 'tmp', 'down_app_stderr')
+        app_stdout_path = os.path.join(config.repo_root, 'tmp', 'down_app_stdout')
+        down_app_stderr = open(app_stderr_path, 'w')
+        down_app_stdout = open(app_stdout_path, 'w')
+
+        down_docker = subprocess.Popen('docker compose down', stderr=down_app_stderr, stdout=down_app_stdout, env=env)
+        down_docker.wait(120)
+
+        subprocess.run("docker network rm selenoid")
+
+        down_app_stderr.close()
+        down_app_stdout.close()
+        config.app_stderr.close()
+        config.app_stdout.close()

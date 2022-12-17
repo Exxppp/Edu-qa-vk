@@ -1,5 +1,6 @@
-import pytest
 import allure
+import pytest
+
 from base import BaseCaseApi
 
 STATUS_CODE_CREATE = 210
@@ -59,12 +60,12 @@ class TestRegApi(BaseCaseApi):
         assert user.status_code != STATUS_CODE_CREATE
 
     @allure.story('Проверка базы данных')
-    def test_reg_user(self):
+    def test_reg_user_check_db(self):
         ud = self.builder.user()
         self.api_client.create_user(ud.data)
 
+        bd_user = self.mysql.get_all_fields_by_username(ud.username)
         with allure.step('Проверка внесения данных в базу'):
-            bd_user = self.mysql.get_all_fields_by_username(ud.username)
             with allure.step('Проверка имени'):
                 assert bd_user.name == ud.name
             with allure.step('Проверка фамилии'):
@@ -74,11 +75,13 @@ class TestRegApi(BaseCaseApi):
             with allure.step('Проверка пароля'):
                 assert bd_user.password == ud.password
             with allure.step('Проверка отчества'):
-                assert bd_user.middlename == ud.middle_name
-
-        with allure.step('Проверка внесения дополнительных данных в базу'):
+                assert bd_user.middle_name == ud.middle_name
             with allure.step('Проверка access'):
                 assert bd_user.access == 1
+
+        self.api_client.post_login(username=ud.username, password=ud.password)
+        bd_user = self.mysql.get_all_fields_by_username(ud.username)
+        with allure.step('Проверка внесения дополнительных данных в базу'):
             with allure.step('Проверка active'):
                 assert bd_user.active == 1
             with allure.step('Проверка start_active_time'):
