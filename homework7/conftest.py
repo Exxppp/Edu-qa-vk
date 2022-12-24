@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import time
 from copy import copy
 
@@ -14,7 +15,16 @@ from client.api_client import ApiClient
 
 repo_root = os.path.abspath(os.path.join(__file__, os.pardir))
 repo_root_2 = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir))
-python_path = os.path.join(repo_root_2, 'venv', 'Scripts', 'python')
+if sys.platform.startswith('win'):
+    venv_dir = 'Scripts'
+    python_name = 'python'
+    exit_code = 1
+else:
+    venv_dir = 'bin'
+    python_name = 'python3.10'
+    exit_code = -15
+python_path = os.path.join(repo_root_2, 'venv', venv_dir, python_name)
+
 
 def wait_ready(host, port):
     started = False
@@ -24,7 +34,7 @@ def wait_ready(host, port):
             requests.get(f'http://{host}:{port}')
             started = True
             break
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             pass
 
     if not started:
@@ -118,17 +128,16 @@ def logger(temp_dir):
 
 def pytest_unconfigure(config):
     config.app_proc.terminate()
-    exit_code = config.app_proc.wait()
+    exit_code_app = config.app_proc.wait()
 
     config.app_stderr.close()
     config.app_stdout.close()
 
-    assert exit_code == 1
-
     config.mock_proc.terminate()
-    exit_code = config.mock_proc.wait()
+    exit_code_mock = config.mock_proc.wait()
 
     config.mock_stderr.close()
     config.mock_stdout.close()
 
-    assert exit_code == 1
+    assert exit_code_app == exit_code
+    assert exit_code_mock == exit_code
